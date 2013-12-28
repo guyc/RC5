@@ -1,7 +1,7 @@
-Arduino IR RC5 library
-======================
+Arduino RC5 remote control decoder library
+==========================================
 
-This is an Arduino library for decoding infrared commands encoded
+This is an Arduino library for decoding infrared remote control commands encoded
 with the Philips RC5 protocol.  It is based on the article
 "An Efficient Algorithm for Decoding RC5 Remote Control Signals"
 by Guy Carpenter, Oct 2001.
@@ -32,6 +32,13 @@ void loop() {
 
 ```
 
+Pressing the power button twice produces this output, showing address 0, command 12.
+```
+0,12 (t) 
+0,12 (t) 
+0,12
+0,12
+```
 
 
 

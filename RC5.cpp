@@ -136,23 +136,6 @@ bool RC5::read(unsigned int *message)
         unsigned long elapsed = time1-this->time0;
         this->time0 = time1;
         this->lastValue = value;
-
-        /*
-         // This will capture time periods, useful for debugging
-        {
-#define LOG_SIZE 50
-            static unsigned int logCount = 0;
-            static unsigned long timeLog[LOG_SIZE];
-            timeLog[logCount++] = elapsed;
-            if (logCount == LOG_SIZE) {
-                for (int i = 0; i<logCount;i++) {
-                    Serial.println(timeLog[i]);
-                }
-                logCount = 0;
-            }
-        }
-        */
-
         this->decodePulse(value, elapsed);
     }
     
