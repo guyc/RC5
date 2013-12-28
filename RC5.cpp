@@ -25,7 +25,7 @@
 #define EVENT_SHORTSPACE  0
 #define EVENT_SHORTPULSE  2
 #define EVENT_LONGSPACE   4
-#define EVENT_LONGPULSE   8
+#define EVENT_LONGPULSE   6
  
 #define STATE_START1 0
 #define STATE_MID1   1
@@ -82,33 +82,43 @@ RC5::RC5(unsigned char pin)
 
 void RC5::reset()
 {
-    Serial.print("reset ");
-    Serial.println(this->bits);
     this->state = STATE_MID1;
     this->bits = 1;  // emit a 1 at start - see state machine graph
     this->command = 1;
     this->time0 = micros();
 }
 
-void RC5::decode(char event)
+void RC5::decodePulse(unsigned char signal, unsigned long period)
 {
-  // find next state, 2 bits
-  unsigned char newState = trans[this->state]>>event & 0x3;
-  if (newState==this->state) {
-      // no state change indicates error, reset
-    this->reset();
-  } else {
-    this->state = newState;
-    if (newState == STATE_MID0) {
-      // always emit 0 when entering mid0 state
-      this->command = (this->command<<1)+0;
-      this->bits++;
-    } else if (newState == STATE_MID1) {
-      // always emit 1 when entering mid1 state
-      this->command = (this->command<<1)+1;
-      this->bits++;
+    if (period >= MIN_SHORT && period <= MAX_SHORT) {
+        this->decodeEvent(signal ? EVENT_SHORTPULSE : EVENT_SHORTSPACE);
+    } else if (period >= MIN_LONG && period <= MAX_LONG) {
+        this->decodeEvent(signal ? EVENT_LONGPULSE : EVENT_LONGSPACE);
+    } else {
+        // time period out of range, reset
+        this->reset();
     }
-  }
+}
+
+void RC5::decodeEvent(unsigned char event)
+{
+    // find next state, 2 bits
+    unsigned char newState = (trans[this->state]>>event) & 0x3;
+    if (newState==this->state) {
+        // no state change indicates error, reset
+        this->reset();
+    } else {
+        this->state = newState;
+        if (newState == STATE_MID0) {
+            // always emit 0 when entering mid0 state
+            this->command = (this->command<<1)+0;
+            this->bits++;
+        } else if (newState == STATE_MID1) {
+            // always emit 1 when entering mid1 state
+            this->command = (this->command<<1)+1;
+            this->bits++;
+        }
+    }
 }
 
 bool RC5::read(unsigned int *message)
@@ -120,25 +130,33 @@ bool RC5::read(unsigned int *message)
        has just ended.
     */
     int value = digitalRead(this->pin);
-
+    
     if (value != this->lastValue) {
         unsigned long time1 = micros();
         unsigned long elapsed = time1-this->time0;
         this->time0 = time1;
         this->lastValue = value;
 
-        if (elapsed >= MIN_SHORT && elapsed <= MAX_SHORT) {
-          this->decode(value ? EVENT_SHORTPULSE : EVENT_SHORTSPACE);
-        } else if (elapsed >= MIN_LONG && elapsed <= MAX_LONG) {
-          this->decode(value ? EVENT_LONGPULSE : EVENT_LONGSPACE);
-        } else {
-            // time period out of range, reset
-            this->reset();
+        /*
+         // This will capture time periods, useful for debugging
+        {
+#define LOG_SIZE 50
+            static unsigned int logCount = 0;
+            static unsigned long timeLog[LOG_SIZE];
+            timeLog[logCount++] = elapsed;
+            if (logCount == LOG_SIZE) {
+                for (int i = 0; i<logCount;i++) {
+                    Serial.println(timeLog[i]);
+                }
+                logCount = 0;
+            }
         }
-    }
+        */
 
+        this->decodePulse(value, elapsed);
+    }
+    
     if (this->bits == 14) {
-        Serial.println(this->command, BIN);
         *message = this->command;
         this->command = 0;
         this->bits = 0;
@@ -154,7 +172,7 @@ bool RC5::read(unsigned char *toggle, unsigned char *address, unsigned char *com
     if (this->read(&message)) {
         *toggle  = (message & TOGGLE_MASK ) >> TOGGLE_SHIFT;
         *address = (message & ADDRESS_MASK) >> ADDRESS_SHIFT;
-
+        
         // Support for extended RC5:
         // to get extended command, invert S2 and shift into command's 7th bit
         unsigned char extended;

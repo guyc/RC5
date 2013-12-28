@@ -15,7 +15,8 @@ class RC5
     void reset();
     bool read(unsigned int *message);
     bool read(unsigned char *toggle, unsigned char *address, unsigned char *command);
-    void decode(char event);
+    void decodeEvent(unsigned char event);
+    void decodePulse(unsigned char signal, unsigned long period);
 };
 
 #endif // RC5_h
