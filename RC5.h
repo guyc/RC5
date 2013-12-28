@@ -1,5 +1,16 @@
+/*
+ *  RC5 Arduino Library
+ *  Guy Carpenter, Clearwater Software - 2013
+ *
+ *  Licensed under the BSD2 license, see LICENSE for details.
+ *
+ *  All text above must be included in any redistribution.
+ */
+
 #ifndef RC5_h
 #define RC5_h
+
+#include <Arduino.h>
 
 class RC5
 {

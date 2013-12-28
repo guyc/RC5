@@ -1,15 +1,13 @@
 /*
  *  RC5 Arduino Library
- *  Guy Carpenter, Clearwater Software - 2014
+ *  Guy Carpenter, Clearwater Software - 2013
  *
- *  Licensed under the BSD2 license, see license.txt for details.
+ *  Licensed under the BSD2 license, see LICENSE for details.
  *
  *  All text above must be included in any redistribution.
  */
 
-#include <Arduino.h>
 #include "RC5.h"
-
 
 #define MIN_SHORT  444
 #define MAX_SHORT 1333
