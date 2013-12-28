@@ -11,6 +11,8 @@ For more information see http://clearwater.com.au/code/rc5.
 This library supports the extended RC5 protocol which uses the second
 stop bit S2 as an extension to the command value.
 
+See also http://www.sbprojects.com/knowledge/ir/rc5.php
+
 Using the Library
 -----------------
 
@@ -32,13 +34,15 @@ void loop() {
 
 ```
 
-Pressing the power button twice produces this output, showing address 0, command 12.
+Pressing the power button on the remote control twice produces this output:
 ```
 0,12 (t) 
 0,12 (t) 
 0,12
 0,12
 ```
+which is address 0 (TV1), command 12 (Standby)
+
 
 
 
