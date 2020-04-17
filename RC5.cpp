@@ -157,7 +157,7 @@ bool RC5::read(unsigned char *toggle, unsigned char *address, unsigned char *com
         // Support for extended RC5:
         // to get extended command, invert S2 and shift into command's 7th bit
         unsigned char extended;
-        extended = (~message & S2_MASK) >> (S2_SHIFT - 7);
+        extended = (~message & S2_MASK) >> (S2_SHIFT - 6);
         *command = ((message & COMMAND_MASK) >> COMMAND_SHIFT) | extended;
         
         return true;
